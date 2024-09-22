@@ -118,9 +118,12 @@ object PuzzleReaderWriter {
     writer.println(s"puzzles ${solutions.length}")
 
     // Iterate over solutions and print each one
-    for ((solution, index) <- solutions.zipWithIndex) {
+    solutions.zipWithIndex.foreach { case (solution, index) =>
       writer.println(s"size ${solution.grid.length}x${solution.grid.head.length}")
-      writer.println(solution.toString)
+      writer.print(solution.toString) // Use print instead of println
+      if (index < solutions.length - 1) {
+        writer.println() // Place a blank line between solutions, except the last one
+      }
     }
 
     writer.close()

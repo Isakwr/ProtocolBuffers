@@ -128,8 +128,12 @@ object Puzzle {
     println(updatedPuzzle.grid(0)(0).paths)
 
     // create Solution object based on the updated puzzle grid
-    val solvedGrid = updatedPuzzle.grid.map(_.map(_.toString.charAt(0)))
-    solvedGrid.foreach(row => println(row.mkString(" ")))
+    // Create a solved grid with proper character representation
+    val solvedGrid = updatedPuzzle.grid.map(_.map {
+      case Block(Some(1), _) => _.toString.charAt(0)
+      case Block(Some(0), _) => ' '  // Use space for non-track blocks
+      case _ => '_'  // Use underscore for unknown state blocks
+    })
 
     // Return a solution with grid, row clues, and column clues
     Solution(solvedGrid, updatedPuzzle.rowClues, updatedPuzzle.columnClues)
@@ -137,12 +141,17 @@ object Puzzle {
 
   // solution case class to represent a Solution to a Puzzle
   case class Solution(grid: Array[Array[Char]], rowClues: List[Int], columnClues: List[Int]) {
-    // convert the grid to a string for output with row and column clues
     override def toString: String = {
+      // Create the column clues as a single line
       val colCluesString = columnClues.mkString(" ")
+
+      // Format each row with the row content and the corresponding clue at the end
       val gridWithRowClues = grid.zip(rowClues).map { case (row, clue) =>
+        // Join row elements with a single space and add two spaces before the row clue
         row.mkString(" ") + "  " + clue.toString
       }.mkString("\n")
+
+      // Return the combined string with column clues at the top
       colCluesString + "\n" + gridWithRowClues
     }
   }
