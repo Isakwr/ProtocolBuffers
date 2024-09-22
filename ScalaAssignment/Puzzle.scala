@@ -147,7 +147,7 @@ object Puzzle {
 
       // Format each row with the row content and the corresponding clue at the end
       val gridWithRowClues = grid.zip(rowClues).map { case (row, clue) =>
-        // Join row elements with a single space and add two spaces before the row clue
+        // Join row elements with a single space and add exactly two spaces before the row clue
         row.mkString(" ") + "  " + clue.toString
       }.mkString("\n")
 
