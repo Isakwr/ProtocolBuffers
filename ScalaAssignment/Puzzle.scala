@@ -38,10 +38,10 @@ case class Block (
           case (true, false, false, true) => "╗" // Left and Down
           case (false, true, true, false) => "╚" // Up and Right
           case (true, false, true, false) => "╝" // Left and Up
-          case _ => "?" // Unknown or invalid configuration
+          case _ => " " // Unknown or invalid configuration
         }
-      case Some(0) => "0" // No track
-      case None => "_"   // Unknown state
+      case Some(0) => " " // No track
+      case None => " "   // Unknown state
     }
   }
 }
