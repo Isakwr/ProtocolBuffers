@@ -129,8 +129,8 @@ object Puzzle {
 
     // create Solution object based on the updated puzzle grid
     // Create a solved grid with proper character representation
-    val solvedGrid = updatedPuzzle.grid.map(_.map {
-      case Block(Some(1), _) => _.toString.charAt(0)
+    val solvedGrid: Array[Array[Char]] = updatedPuzzle.grid.map(_.map {
+      case block: Block if block.state.contains(1) => block.toString.charAt(0) // Correct type inference
       case Block(Some(0), _) => ' '  // Use space for non-track blocks
       case _ => '_'  // Use underscore for unknown state blocks
     })
