@@ -1,5 +1,4 @@
 import PuzzleChecker.{completeColumn, completeRow, connect, extendParts, fillCorner, markNonTracksColumns, markNonTracksRows}
-// Puzzle.scala
 
 object Direction extends Enumeration {
   val Left, Up, Right, Down = Value
@@ -70,7 +69,7 @@ object Puzzle {
 
 
   def fillFullRow(puzzle: Puzzle, rowIndex: Int): Puzzle = {
-    val newGrid = puzzle.grid.map(_.clone()) // create a copy of the grid to modify
+    val newGrid = puzzle.grid.map(_.clone()) 
 
     for (colIdx <- newGrid(rowIndex).indices) {
       newGrid(rowIndex)(colIdx) = newGrid(rowIndex)(colIdx).updatedBlockState(1)
@@ -80,7 +79,7 @@ object Puzzle {
   }
 
   def fillFullColumn(puzzle: Puzzle, colIndex: Int): Puzzle = {
-    val newGrid = puzzle.grid.map(_.clone()) // create a copy of the grid to modify
+    val newGrid = puzzle.grid.map(_.clone()) 
 
     for (rowIdx <- newGrid(colIndex).indices) {
       newGrid(rowIdx)(colIndex) = newGrid(rowIdx)(colIndex).updatedBlockState(1)
@@ -126,32 +125,26 @@ object Puzzle {
     updatedPuzzle = connect(updatedPuzzle)
 
     println(updatedPuzzle.grid(0)(0).paths)
-
-    // create Solution object based on the updated puzzle grid
-    // Create a solved grid with proper character representation
+    
     val solvedGrid: Array[Array[Char]] = updatedPuzzle.grid.map(_.map {
-      case block: Block if block.state.contains(1) => block.toString.charAt(0) // Correct type inference
-      case Block(Some(0), _) => ' '  // Use space for non-track blocks
-      case _ => '_'  // Use underscore for unknown state blocks
+      case block: Block if block.state.contains(1) => block.toString.charAt(0)
+      case Block(Some(0), _) => ' ' 
+      case _ => '_'  
     })
 
-    // Return a solution with grid, row clues, and column clues
+    //return the solution
     Solution(solvedGrid, updatedPuzzle.rowClues, updatedPuzzle.columnClues)
   }
 
-  // solution case class to represent a Solution to a Puzzle
+  
   case class Solution(grid: Array[Array[Char]], rowClues: List[Int], columnClues: List[Int]) {
     override def toString: String = {
-      // Create the column clues as a single line
+      
       val colCluesString = columnClues.mkString(" ")
-
-      // Format each row with the row content and the corresponding clue at the end
       val gridWithRowClues = grid.zip(rowClues).map { case (row, clue) =>
-        // Join row elements with a single space and add exactly two spaces before the row clue
         row.mkString(" ") + " " + clue.toString
       }.mkString("\n")
-
-      // Return the combined string with column clues at the top
+      
       colCluesString + "\n" + gridWithRowClues
     }
   }

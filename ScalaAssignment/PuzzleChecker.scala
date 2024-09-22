@@ -1,5 +1,3 @@
-// PuzzleChecker.scala
-
 object PuzzleChecker {
 
   // method to check if any row is fully filled according to the row clues
@@ -9,17 +7,10 @@ object PuzzleChecker {
     width == clue // check if the width matches the clue
   }
 
-  def printMatrixWithCoordinatesAndState(puzzle: Puzzle): Unit = {
-    for ((row, rowIndex) <- puzzle.grid.zipWithIndex) {
-      for ((block, colIndex) <- row.zipWithIndex) {
-        // Get the state value or use '?' if state is None
-        val stateValue = block.state.map(_.toString).getOrElse("?")
-        // Print the coordinates and state for each block
-        print(s"($rowIndex, $colIndex: $stateValue) ")
-      }
-      // Print a newline after each row
-      println()
-    }
+  def isFullColumn(puzzle: Puzzle, colIndex: Int): Boolean = {
+    val clue = puzzle.columnClues(colIndex)
+    val height = puzzle.size._2
+    height == clue
   }
 
   def completeRow(puzzle: Puzzle): Puzzle = {
@@ -247,7 +238,7 @@ object PuzzleChecker {
             } else false
           })
 
-          // Use a mutable variable to track the updated block
+          
           var updatedBlock = block
 
           if (pathable == 2) {
@@ -293,7 +284,7 @@ object PuzzleChecker {
               }
             }
 
-            // Reassign the updated block back to the grid after all path updates
+           
             puzzle.grid(rowIndex)(columnIndex) = updatedBlock
           }
         }
@@ -308,7 +299,6 @@ object PuzzleChecker {
   
 
   def extendParts(puzzle: Puzzle): Puzzle = {
-    printMatrixWithCoordinatesAndState(puzzle)
     for((row, rowIndex) <- puzzle.grid.zipWithIndex) {
       for ((block, colIndex) <- row.zipWithIndex) {
         //If the block is a track with a path
@@ -414,10 +404,5 @@ object PuzzleChecker {
       return false
   }
 
-  // method to check if any column is fully filled according to the column clues
-  def isFullColumn(puzzle: Puzzle, colIndex: Int): Boolean = {
-    val clue = puzzle.columnClues(colIndex)
-    val height = puzzle.size._2
-    height == clue // check if the number of filled blocks matches the clue
-  }
+  
 }

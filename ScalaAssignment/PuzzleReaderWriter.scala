@@ -1,5 +1,3 @@
-// PuzzleReaderWriter.scala
-
 import Puzzle.Solution
 
 import java.io.PrintWriter
@@ -18,7 +16,7 @@ object PuzzleReaderWriter {
 
     // first line indicates the number of puzzles
     val numPuzzles = lines(i).split(" ")(1).toInt
-    println(s"Number of puzzles: $numPuzzles") // prints the number of puzzles in the file
+    println(s"Number of puzzles: $numPuzzles")
     i += 1
 
     // parse each puzzle
@@ -26,7 +24,7 @@ object PuzzleReaderWriter {
       // read the size of the puzzle (e.g., "size 4x4")
       val sizeLine = lines(i).split(" ")(1).split("x")
       val (width, height) = (sizeLine(0).toInt, sizeLine(1).toInt)
-      println(s"Puzzle size: ${width}x${height}") // prints the size of each puzzle
+      println(s"Puzzle size: ${width}x${height}")
       i += 1
 
       // read column clues
@@ -34,7 +32,7 @@ object PuzzleReaderWriter {
       i += 1
 
       // read the grid rows and row clues
-      val grid = Array.fill(height, width)(Block()) // fill the grid with default block instances
+      val grid = Array.fill(height, width)(Block())
       val rowClues = List.newBuilder[Int]
 
       for (rowIdx <- 0 until height) {
@@ -104,7 +102,6 @@ object PuzzleReaderWriter {
         i += 1
       }
 
-      // construct the puzzle and add it to the list
       puzzles = Puzzle((height, width), grid, rowClues.result(), columnClues) :: puzzles
     }
 
@@ -114,15 +111,15 @@ object PuzzleReaderWriter {
   def writeSolution(filename: String, solutions: List[Solution]): Unit = {
     val writer = new PrintWriter(filename)
 
-    // Write the total number of puzzles at the top of the file
+
     writer.println(s"puzzles ${solutions.length}")
 
-    // Iterate over solutions and print each one
+
     solutions.zipWithIndex.foreach { case (solution, index) =>
       writer.println(s"size ${solution.grid.length}x${solution.grid.head.length}")
-      writer.print(solution.toString) // Use print instead of println
+      writer.print(solution.toString)
       if (index < solutions.length - 1) {
-        writer.println() // Place a blank line between solutions, except the last one
+        writer.println()
       }
     }
 

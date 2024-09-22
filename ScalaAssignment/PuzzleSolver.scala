@@ -1,5 +1,3 @@
-// PuzzleSolver.scala
-
 @main def PuzzleSolver(inFile: String, outFile: String): Unit = {
 
     // read all puzzles from the input file
@@ -22,7 +20,6 @@
       Puzzle.solve(puzzle)
     }
 
-    // write all the solutions to the output file at once
     PuzzleReaderWriter.writeSolution(outFile, solutions)
 }
 
