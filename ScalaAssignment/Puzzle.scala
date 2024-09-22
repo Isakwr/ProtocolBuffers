@@ -38,10 +38,10 @@ case class Block (
           case (true, false, false, true) => "╗" // Left and Down
           case (false, true, true, false) => "╚" // Up and Right
           case (true, false, true, false) => "╝" // Left and Up
-          case _ => "  " // Unknown or invalid configuration
+          case _ => " " // Unknown or invalid configuration
         }
-      case Some(0) => "  " // No track
-      case None => "  "   // Unknown state
+      case Some(0) => " " // No track
+      case None => " "   // Unknown state
     }
   }
 }
@@ -148,7 +148,7 @@ object Puzzle {
       // Format each row with the row content and the corresponding clue at the end
       val gridWithRowClues = grid.zip(rowClues).map { case (row, clue) =>
         // Join row elements with a single space and add exactly two spaces before the row clue
-        row.mkString(" ") + "  " + clue.toString
+        row.mkString(" ") + " " + clue.toString
       }.mkString("\n")
 
       // Return the combined string with column clues at the top
