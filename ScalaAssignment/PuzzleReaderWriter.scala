@@ -108,21 +108,21 @@ object PuzzleReaderWriter {
     puzzles.reverse
   }
 
-  def writeSolution(filename: String, solutions: List[Solution]): Unit = {
-    val writer = new PrintWriter(filename)
+    def writeSolution(filename: String, solutions: List[Solution]): Unit = {
+      val writer = new PrintWriter(filename)
 
 
-    writer.println(s"puzzles ${solutions.length}")
+      writer.println(s"puzzles ${solutions.length}")
 
 
-    solutions.zipWithIndex.foreach { case (solution, index) =>
-      writer.println(s"size ${solution.grid.length}x${solution.grid.head.length}")
-      writer.print(solution.toString)
-      if (index < solutions.length - 1) {
-        writer.println()
+      solutions.zipWithIndex.foreach { case (solution, index) =>
+        writer.println(s"size ${solution.grid.length}x${solution.grid.head.length}")
+        writer.print(solution.toString)
+        if (index < solutions.length - 1) {
+          writer.println()
+        }
       }
-    }
 
-    writer.close()
-  }
+      writer.close()
+    }
 }

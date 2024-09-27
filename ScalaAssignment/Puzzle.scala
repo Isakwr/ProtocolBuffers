@@ -1,19 +1,23 @@
-import PuzzleChecker.{completeColumn, completeRow, connect, extendParts, fillCorner, markNonTracksColumns, markNonTracksRows}
+import scala.collection.mutable.Set
+import PuzzleChecker.{completeColumn, completeRow, connect, extendParts, fillCorner, finishConnect, loopChecker, makeFullyKnown, markNonTracksColumns, markNonTracksRows}
+
+import java.io.PrintWriter
+import scala.collection.mutable
 
 object Direction extends Enumeration {
   val Left, Up, Right, Down = Value
 }
 
 case class Block (
-                 var state: Option[Int], // None for unkown, Some(1) for track, Some(0) for no track
-                 var paths: Map[Direction.Value, Option[Int]] // map of paths with binary representation
+                 var state: Option[Int], //none for unkown, Some(1) for track, Some(0) for no track
+                 var paths: Map[Direction.Value, Option[Int]] //map of paths with binary representation
                  ) {
   def updatedBlockState(trackExists: Int): Block = {
     copy(state = Some(trackExists))
   }
 
   def updatePath(direction: Direction.Value, pathExists: Int): Block = {
-    // Update only the specific direction, keep all others unchanged
+    //update only the specific direction, keep all others unchanged
     val updatedPaths = paths.updated(direction, Some(pathExists))
     copy(paths = updatedPaths)
   }
@@ -23,13 +27,13 @@ case class Block (
   override def toString: String = {
     state match {
       case Some(1) =>
-        // Determine the path configuration
+        //determine the path configuration
         val isLeft = paths(Direction.Left).contains(1)
         val isRight = paths(Direction.Right).contains(1)
         val isUp = paths(Direction.Up).contains(1)
         val isDown = paths(Direction.Down).contains(1)
 
-        // Return the appropriate symbol based on the paths
+        //return the appropriate symbol based on the paths
         (isLeft, isRight, isUp, isDown) match {
           case (true, true, false, false) => "═" // Left and Right
           case (false, false, true, true) => "║" // Up and Down
@@ -108,8 +112,10 @@ object Puzzle {
     }
     updatedPuzzle = markNonTracksRows(updatedPuzzle)
     updatedPuzzle = markNonTracksColumns(updatedPuzzle)
+    var done: Boolean = false
+    while(!done){
+      var copyPuzzle = updatedPuzzle
 
-    for (i <- 0 until 30) {
       updatedPuzzle = markNonTracksRows(updatedPuzzle)
       updatedPuzzle = markNonTracksColumns(updatedPuzzle)
       updatedPuzzle = extendParts(updatedPuzzle)
@@ -118,19 +124,50 @@ object Puzzle {
       updatedPuzzle = completeRow(updatedPuzzle)
       updatedPuzzle = completeColumn(updatedPuzzle)
       updatedPuzzle = fillCorner(updatedPuzzle)
+
+      if(copyPuzzle.grid sameElements updatedPuzzle.grid) {
+        for(i <- 0 until 30) {
+          updatedPuzzle = markNonTracksRows(updatedPuzzle)
+          updatedPuzzle = markNonTracksColumns(updatedPuzzle)
+          updatedPuzzle = extendParts(updatedPuzzle)
+          updatedPuzzle = markNonTracksRows(updatedPuzzle)
+          updatedPuzzle = markNonTracksColumns(updatedPuzzle)
+          updatedPuzzle = completeRow(updatedPuzzle)
+          updatedPuzzle = completeColumn(updatedPuzzle)
+          updatedPuzzle = fillCorner(updatedPuzzle)
+        }
+        done = true
+      }
     }
 
-    updatedPuzzle = connect(updatedPuzzle)
-    updatedPuzzle = connect(updatedPuzzle)
-    updatedPuzzle = connect(updatedPuzzle)
+    var trackPieceNum = 0
+    for (row <- puzzle.grid) {
+      for (block <- row) {
+        if (block.state.contains(1)) {
+          trackPieceNum += 1
+        }
+      }
+    }
 
-    println(updatedPuzzle.grid(0)(0).paths)
-    
+    for(i <- 0 until 50) {
+      updatedPuzzle = connect(updatedPuzzle)
+      updatedPuzzle = makeFullyKnown(updatedPuzzle)
+      updatedPuzzle = connect(updatedPuzzle)
+      updatedPuzzle = makeFullyKnown(updatedPuzzle)
+      updatedPuzzle = connect(updatedPuzzle)
+      updatedPuzzle = finishConnect(updatedPuzzle)
+      updatedPuzzle = makeFullyKnown(updatedPuzzle)
+      updatedPuzzle = connect(updatedPuzzle)
+    }
+
+
+
     val solvedGrid: Array[Array[Char]] = updatedPuzzle.grid.map(_.map {
       case block: Block if block.state.contains(1) => block.toString.charAt(0)
-      case Block(Some(0), _) => ' ' 
-      case _ => '_'  
+      case Block(Some(0), _) => ' '
+      case _ => '_'
     })
+
 
     //return the solution
     Solution(solvedGrid, updatedPuzzle.rowClues, updatedPuzzle.columnClues)
