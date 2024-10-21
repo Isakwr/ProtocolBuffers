@@ -1,12 +1,12 @@
 import java.io.{FileInputStream, FileOutputStream}
 import scala.jdk.CollectionConverters._
-import PuzzleFile
-import Puzzle
-import Clue
-import Block
-import Row
-import Grid
-import Dimensions
+import Schema.PuzzleFile
+import Schema.Puzzle
+import Schema.Clue
+import Schema.Block
+import Schema.Row
+import Schema.Grid
+import Schema.Dimensions
 
 object PuzzleReaderWriter {
 
