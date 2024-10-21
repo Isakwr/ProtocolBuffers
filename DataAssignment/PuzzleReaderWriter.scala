@@ -1,5 +1,4 @@
 import java.io.{FileInputStream, FileOutputStream}
-import scala.jdk.CollectionConverters._
 import Schema.PuzzleFile
 import Schema.Puzzle
 import Schema.Clue
@@ -7,6 +6,7 @@ import Schema.Block
 import Schema.Row
 import Schema.Grid
 import Schema.Dimensions
+import Puzzle.Solution
 
 object PuzzleReaderWriter {
 
@@ -18,7 +18,7 @@ object PuzzleReaderWriter {
     var puzzles = List.empty[Puzzle]
 
     for (puzzleProto <- puzzleFile.getPuzzlesList.asScala) {
-      val width = puzzleProto.getDimensions.getWidth
+      val width = puzzleProto.getDimension.getWidth
       val height = puzzleProto.getDimensions.getHeight
       println(s"Puzzle size: ${width}x${height}")
 
