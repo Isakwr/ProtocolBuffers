@@ -1,10 +1,12 @@
 import java.io.{FileInputStream, FileOutputStream, PrintWriter}
 import puzzle_unsolved.PuzzleFile
 import scala.jdk.CollectionConverters._
+import scala.io._
+import java.util._
 
 object PuzzleReaderWriter {
 
-  def readPuzzlesFromBinary(filename: String): List[Puzzle] = {
+  def readPuzzles(filename: String): List[Puzzle] = {
     val fileInput = new FileInputStream(filename)
     val puzzleFile = PuzzleFile.parseFrom(fileInput)
     fileInput.close()
@@ -92,7 +94,7 @@ object PuzzleReaderWriter {
     puzzles.reverse
   }
 
-  def writeSolutionToBinary(filename: String, solutions: List[Solution]): Unit = {
+  def writeSolution(filename: String, solutions: List[Solution]): Unit = {
 
     val puzzleFileBuilder = PuzzleFile.newBuilder()
     for (solution <- solutions) {

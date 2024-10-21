@@ -1,4 +1,4 @@
-import puzzle_unsolved_pb2
+import schema_pb2
 import sys
 
 
@@ -6,7 +6,7 @@ infile = sys.argv[1]
 outfile= sys.argv[2]
 
 def encode_puzzle(input_file, output_file):
-    puzzle_unsolved = puzzle_unsolved_pb2.PuzzleFile()
+    puzzle_unsolved = schema_pb2.PuzzleFile()
 
     with open(input_file, 'r', encoding='utf-8') as f:
         line = f.readline().strip()
