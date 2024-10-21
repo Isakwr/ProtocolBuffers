@@ -1,4 +1,4 @@
-import puzzle_unsolved_pb2
+import schema_pb2
 import sys
 
 infile = sys.argv[1]
@@ -6,7 +6,7 @@ outfile= sys.argv[2]
 
 
 def decode_puzzle(input_file, output_file):
-    puzzle_file = puzzle_unsolved_pb2.PuzzleFile()
+    puzzle_file = schema_pb2.PuzzleFile()
 
     with open(input_file, 'rb') as f:
         puzzle_file.ParseFromString(f.read())

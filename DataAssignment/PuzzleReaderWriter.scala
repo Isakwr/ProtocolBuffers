@@ -1,8 +1,8 @@
 import java.io.{FileInputStream, FileOutputStream, PrintWriter}
-import puzzle_unsolved.PuzzleFile
 import scala.jdk.CollectionConverters._
 import scala.io._
 import java.util._
+import Puzzle.Solution
 
 object PuzzleReaderWriter {
 
