@@ -1,4 +1,9 @@
 import puzzle_unsolved_pb2
+import sys
+
+
+infile = sys.argv[1]
+outfile= sys.argv[2]
 
 def encode_puzzle(input_file, output_file):
     puzzle_unsolved = puzzle_unsolved_pb2.PuzzleFile()
@@ -42,4 +47,4 @@ def encode_puzzle(input_file, output_file):
 
     print(f"Binary data has been saved to '{output_file}'")
 
-encode_puzzle('puzzle_2.txt', 'puzzle_input.bin')
+encode_puzzle(infile, outfile)
