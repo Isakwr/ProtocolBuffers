@@ -1,11 +1,11 @@
 import java.io.{FileInputStream, FileOutputStream}
-import Schema.PuzzleFile
-import Schema.Puzzle
-import Schema.Clue
-import Schema.Block
-import Schema.Row
-import Schema.Grid
-import Schema.Dimensions
+import proto.PuzzleFile
+import proto.Puzzle
+import proto.Clue
+import proto.Block
+import proto.Row
+import proto.Grid
+import proto.Dimensions
 import Puzzle.Solution
 
 object PuzzleReaderWriter {
