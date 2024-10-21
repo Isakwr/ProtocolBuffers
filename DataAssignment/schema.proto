@@ -12,12 +12,12 @@ message Block {
 }
 
 message Row {
-  repeated Block blocks = 1; // each row contains multiple blocks
-  Clue row_clue = 2;         // clue at the end of the row
+  repeated Block blocks = 1; //each row contains multiple blocks
+  Clue row_clue = 2;         //clue at the end of the row
 }
 
 message Grid {
-  repeated Row rows = 1; // the puzzle grid consists of repeated Rows
+  repeated Row rows = 1; //the puzzle grid consists of repeated Rows
 }
 
 message Dimensions {
@@ -27,12 +27,12 @@ message Dimensions {
 }
 
 message PuzzleBoard {
-  Dimensions dimensions = 1;       // dimensions of the puzzle
-  repeated Clue column_clues = 2;  // clues for each column (top)
-  Grid grid = 3;                   // the actual Puzzle grid
+  Dimensions dimensions = 1;       //dimensions of the puzzle
+  repeated Clue column_clues = 2;  //clues for each column (top)
+  Grid grid = 3;                   //the actual Puzzle grid
 }
 
 message PuzzleFile {
-  uint32 number_of_puzzles = 1;    // number of puzzles in the file
-  repeated Puzzle puzzles = 2;     // list of puzzles
+  uint32 number_of_puzzles = 1;    //number of puzzles in the file
+  repeated PuzzleBoard puzzles = 2;     //list of puzzles
 }
