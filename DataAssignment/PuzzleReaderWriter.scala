@@ -1,24 +1,19 @@
 import java.io.{FileInputStream, FileOutputStream}
-import proto.PuzzleFile
-import proto.Puzzle
-import proto.Clue
-import proto.Block
-import proto.Row
-import proto.Grid
-import proto.Dimensions
+import scala.jdk.CollectionConverters._
+import puzzle_unsolved.{PuzzleFile, PuzzleBoard, Clue, Block, Row, Grid, Dimensions}
 import Puzzle.Solution
 
 object PuzzleReaderWriter {
 
-  def readPuzzles(filename: String): List[Puzzle] = {
+  def readPuzzles(filename: String): List[PuzzleBoard] = {
     val fileInput = new FileInputStream(filename)
     val puzzleFile = PuzzleFile.parseFrom(fileInput)
     fileInput.close()
 
-    var puzzles = List.empty[Puzzle]
+    var puzzles = List.empty[PuzzleBoard]
 
     for (puzzleProto <- puzzleFile.getPuzzlesList.asScala) {
-      val width = puzzleProto.getDimension.getWidth
+      val width = puzzleProto.getDimensions.getWidth
       val height = puzzleProto.getDimensions.getHeight
       println(s"Puzzle size: ${width}x${height}")
 
@@ -93,7 +88,7 @@ object PuzzleReaderWriter {
         rowClues += rowProto.getRowClue.getClue
       }
 
-      puzzles = Puzzle((height, width), grid, rowClues.result(), columnClues) :: puzzles
+      puzzles = PuzzleBoard((height, width), grid, rowClues.result(), columnClues) :: puzzles
     }
 
     puzzles.reverse
@@ -103,7 +98,7 @@ object PuzzleReaderWriter {
     val puzzleFileBuilder = PuzzleFile.newBuilder()
 
     for (solution <- solutions) {
-      val puzzleBuilder = Puzzle.newBuilder()
+      val puzzleBuilder = PuzzleBoard.newBuilder()
 
       val dimensionsBuilder = Dimensions.newBuilder()
       dimensionsBuilder.setWidth(solution.grid.head.length)

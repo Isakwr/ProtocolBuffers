@@ -26,7 +26,7 @@ message Dimensions {
   // dimensions of the puzzle grid
 }
 
-message Puzzle {
+message PuzzleBoard {
   Dimensions dimensions = 1;       // dimensions of the puzzle
   repeated Clue column_clues = 2;  // clues for each column (top)
   Grid grid = 3;                   // the actual Puzzle grid
