@@ -1,6 +1,6 @@
 import java.io.{FileInputStream, FileOutputStream}
 import scala.jdk.CollectionConverters._
-import puzzle_unsolved.{PuzzleFile, PuzzleBoard, Clue, Block, Row, Grid, Dimensions}
+import Schema.{PuzzleFile, PuzzleBoard, Clue, Block, Row, Grid, Dimensions}
 import Puzzle.Solution
 
 object PuzzleReaderWriter {
