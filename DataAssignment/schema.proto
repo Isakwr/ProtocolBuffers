@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+message Clue {
+  uint32 clue = 1;
+  // non-negative integer clues
+}
+
+message Block {
+  string block = 1;
+  // empty or UTF-8 box-drawing symbols
+}
+
+message Row {
+  repeated Block blocks = 1; // each row contains multiple blocks
+  Clue row_clue = 2;         // clue at the end of the row
+}
+
+message Grid {
+  repeated Row rows = 1; // the puzzle grid consists of repeated Rows
+}
+
+message Dimensions {
+  uint32 width = 1;
+  uint32 height = 2;
+  // dimensions of the puzzle grid
+}
+
+message Puzzle {
+  Dimensions dimensions = 1;       // dimensions of the puzzle
+  repeated Clue column_clues = 2;  // clues for each column (top)
+  Grid grid = 3;                   // the actual Puzzle grid
+}
+
+message PuzzleFile {
+  uint32 number_of_puzzles = 1;    // number of puzzles in the file
+  repeated Puzzle puzzles = 2;     // list of puzzles
+}
