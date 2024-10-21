@@ -1,6 +1,12 @@
-import java.io.{FileInputStream, FileOutputStream, PrintWriter}
-import puzzle_unsolved_pb2.PuzzleFile
+import java.io.{FileInputStream, FileOutputStream}
 import scala.jdk.CollectionConverters._
+import PuzzleFile
+import Puzzle
+import Clue
+import Block
+import Row
+import Grid
+import Dimensions
 
 object PuzzleReaderWriter {
 
@@ -17,7 +23,6 @@ object PuzzleReaderWriter {
       println(s"Puzzle size: ${width}x${height}")
 
       val columnClues = puzzleProto.getColumnCluesList.asScala.map(_.getClue).toList
-
       val grid = Array.fill(height, width)(Block())
       val rowClues = List.newBuilder[Int]
 
@@ -98,29 +103,29 @@ object PuzzleReaderWriter {
     val puzzleFileBuilder = PuzzleFile.newBuilder()
 
     for (solution <- solutions) {
-      val puzzleBuilder = puzzle_unsolved_pb2.Puzzle.newBuilder()
+      val puzzleBuilder = Puzzle.newBuilder()
 
-      val dimensionsBuilder = puzzle_unsolved_pb2.Dimensions.newBuilder()
+      val dimensionsBuilder = Dimensions.newBuilder()
       dimensionsBuilder.setWidth(solution.grid.head.length)
       dimensionsBuilder.setHeight(solution.grid.length)
       puzzleBuilder.setDimensions(dimensionsBuilder)
 
       solution.columnClues.foreach { clue =>
-        val clueBuilder = puzzle_unsolved_pb2.Clue.newBuilder()
+        val clueBuilder = Clue.newBuilder()
         clueBuilder.setClue(clue)
         puzzleBuilder.addColumnClues(clueBuilder)
       }
 
-      val gridBuilder = puzzle_unsolved_pb2.Grid.newBuilder()
+      val gridBuilder = Grid.newBuilder()
       for (rowIdx <- solution.grid.indices) {
-        val rowBuilder = puzzle_unsolved_pb2.Row.newBuilder()
+        val rowBuilder = Row.newBuilder()
         for (colIdx <- solution.grid(rowIdx).indices) {
-          val blockBuilder = puzzle_unsolved_pb2.Block.newBuilder()
+          val blockBuilder = Block.newBuilder()
           blockBuilder.setBlock(solution.grid(rowIdx)(colIdx).toString)
           rowBuilder.addBlocks(blockBuilder)
         }
 
-        val rowClueBuilder = puzzle_unsolved_pb2.Clue.newBuilder()
+        val rowClueBuilder = Clue.newBuilder()
         rowClueBuilder.setClue(solution.rowClues(rowIdx))
         rowBuilder.setRowClue(rowClueBuilder)
         gridBuilder.addRows(rowBuilder)
@@ -133,5 +138,7 @@ object PuzzleReaderWriter {
     val fileOutput = new FileOutputStream(filename)
     puzzleFileBuilder.build().writeTo(fileOutput)
     fileOutput.close()
+
+    println(s"Binary data has been saved to '$filename'")
   }
 }
