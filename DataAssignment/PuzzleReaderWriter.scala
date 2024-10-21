@@ -1,7 +1,7 @@
 import java.io.{FileInputStream, FileOutputStream, PrintWriter}
 import scala.jdk.CollectionConverters._
-import puzzle_unsolved.PuzzleFile
-import puzzle_unsolved.Puzzle
+import puzzle_unsolved_pb2.PuzzleFile
+import puzzle_unsolved_pb2.Puzzle
 
 object PuzzleReaderWriter {
   def readPuzzles(filename: String): List[Puzzle] = {
