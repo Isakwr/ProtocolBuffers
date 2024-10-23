@@ -2,8 +2,10 @@ import schema_pb2
 import sys
 
 
-infile = sys.argv[1]
-outfile= sys.argv[2]
+#infile = sys.argv[1]
+#outfile= sys.argv[2]
+infile = "c:/Users/isakw/ikt212/isakwr/DataAssignment/puzzles.txt"
+outfile = "c:/Users/isakw/ikt212/isakwr/DataAssignment/binary"
 
 def encode_puzzle(input_file, output_file):
     puzzle_unsolved = schema_pb2.PuzzleFile()

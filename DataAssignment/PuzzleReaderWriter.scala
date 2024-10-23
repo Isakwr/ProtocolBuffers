@@ -88,7 +88,7 @@ object PuzzleReaderWriter {
         rowClues += rowProto.getRowClue.getClue
       }
 
-      puzzles = PuzzleBoard((height, width), grid, rowClues.result(), columnClues) :: puzzles
+      puzzles = Puzzle((height, width), grid, rowClues.result(), columnClues) :: puzzles
     }
 
     puzzles.reverse

@@ -11,7 +11,7 @@ def decode_puzzle(input_file, output_file):
     with open(input_file, 'rb') as f:
         puzzle_file.ParseFromString(f.read())
 
-    with open(output_file, 'w') as f:
+    with open(output_file, 'w', encoding='utf-8') as f:
         f.write(f"puzzles {puzzle_file.number_of_puzzles}\n")
 
         for puzzle_idx, puzzle in enumerate(puzzle_file.puzzles):
