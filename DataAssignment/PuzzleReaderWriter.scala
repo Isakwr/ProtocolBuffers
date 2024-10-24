@@ -1,7 +1,7 @@
-import foo.PuzzleFile
-import foo.{Block as JavaBlock, PuzzleBoard as JavaPuzzleBoard, Row as JavaRow}
+import Schema.{Block as jvBlock, Clue as jvClue, PuzzleFile as jvPuzzleFile, PuzzleBoard as jvPuzzleBoard}
 import java.io.{FileInputStream, FileOutputStream}
 import scala.io.Source
+import Puzzle.Solution
 
 object PuzzleReaderWriter {
 
@@ -110,7 +110,7 @@ object PuzzleReaderWriter {
 
   def writeSolution(filename: String, solutions: List[Puzzle.Solution]): Unit = {
     var outputfile: FileOutputStream = null;
-    var output = foo.PuzzleFile.newBuilder()
+    var output = jvPuzzleFile.newBuilder()
     output.build().writeTo(filename)
     outputfile.close()
   }
