@@ -1,91 +1,105 @@
+import foo.PuzzleFile
+import foo.{Block as JavaBlock, PuzzleBoard as JavaPuzzleBoard, Row as JavaRow}
 import java.io.{FileInputStream, FileOutputStream}
-import scala.jdk.CollectionConverters._
-import Schema.{PuzzleFile, PuzzleBoard, Clue, Block, Row, Grid, Dimensions}
-import Puzzle.Solution
+import scala.io.Source
 
 object PuzzleReaderWriter {
 
-  def readPuzzles(filename: String): List[PuzzleBoard] = {
-    val fileInput = new FileInputStream(filename)
-    val puzzleFile = PuzzleFile.parseFrom(fileInput)
-    fileInput.close()
 
-    var puzzles = List.empty[PuzzleBoard]
+  def readPuzzles(filename: String): List[Puzzle] = {
+    val source = Source.fromFile("test.txt")
+    val lines = source.getLines().toList
+    source.close()
 
-    for (puzzleProto <- puzzleFile.getPuzzlesList.asScala) {
-      val width = puzzleProto.getDimensions.getWidth
-      val height = puzzleProto.getDimensions.getHeight
+    var puzzles = List.empty[Puzzle]
+    var i = 0
+
+    // first line indicates the number of puzzles
+    val numPuzzles = lines(i).split(" ")(1).toInt
+    println(s"Number of puzzles: $numPuzzles")
+    i += 1
+
+    // parse each puzzle
+    while (i < lines.length) {
+      // read the size of the puzzle (e.g., "size 4x4")
+      val sizeLine = lines(i).split(" ")(1).split("x")
+      val (width, height) = (sizeLine(0).toInt, sizeLine(1).toInt)
       println(s"Puzzle size: ${width}x${height}")
+      i += 1
 
-      val columnClues = puzzleProto.getColumnCluesList.asScala.map(_.getClue).toList
+      // read column clues
+      val columnClues = lines(i).trim.split(" ").map(_.toInt).toList
+      i += 1
+
+      // read the grid rows and row clues
       val grid = Array.fill(height, width)(Block())
       val rowClues = List.newBuilder[Int]
 
       for (rowIdx <- 0 until height) {
-        val rowProto = puzzleProto.getGrid.getRows(rowIdx)
-
+        val rowLine = lines(i).trim.split(" ")
         for (colIdx <- 0 until width) {
-          val blockSymbol = rowProto.getBlocks(colIdx).getBlock
-          val block = blockSymbol match {
-            case "═" => Block(state = Some(1), paths = Map(
+          val char = rowLine(colIdx).charAt(0)
+          val block = char match {
+            case '═' => Block(state = Some(1), paths = Map(
               Direction.Left -> Some(1),
               Direction.Right -> Some(1),
               Direction.Up -> Some(0),
               Direction.Down -> Some(0)
             ))
-            case "║" => Block(state = Some(1), paths = Map(
+            case '║' => Block(state = Some(1), paths = Map(
               Direction.Left -> Some(0),
               Direction.Right -> Some(0),
               Direction.Up -> Some(1),
               Direction.Down -> Some(1)
             ))
-            case "╔" => Block(state = Some(1), paths = Map(
+            case '╔' => Block(state = Some(1), paths = Map(
               Direction.Left -> Some(0),
               Direction.Right -> Some(1),
               Direction.Up -> Some(0),
               Direction.Down -> Some(1)
             ))
-            case "╗" => Block(state = Some(1), paths = Map(
+            case '╗' => Block(state = Some(1), paths = Map(
               Direction.Left -> Some(1),
               Direction.Right -> Some(0),
               Direction.Up -> Some(0),
               Direction.Down -> Some(1)
             ))
-            case "╚" => Block(state = Some(1), paths = Map(
+            case '╚' => Block(state = Some(1), paths = Map(
               Direction.Left -> Some(0),
               Direction.Right -> Some(1),
               Direction.Up -> Some(1),
               Direction.Down -> Some(0)
             ))
-            case "╝" => Block(state = Some(1), paths = Map(
+            case '╝' => Block(state = Some(1), paths = Map(
               Direction.Left -> Some(1),
               Direction.Right -> Some(0),
               Direction.Up -> Some(1),
               Direction.Down -> Some(0)
             ))
-            case "1" => Block(state = Some(1), paths = Map(
+            case '1' => Block(state = Some(1), paths = Map(
               Direction.Left -> None,
               Direction.Right -> None,
               Direction.Up -> None,
               Direction.Down -> None
             ))
-            case "0" => Block(state = Some(0), paths = Map(
+            case '0' => Block(state = Some(0), paths = Map(
               Direction.Left -> None,
               Direction.Right -> None,
               Direction.Up -> None,
               Direction.Down -> None
             ))
-            case "_" => Block(state = None, paths = Map(
+            case '_' => Block(state = None, paths = Map(
               Direction.Left -> None,
               Direction.Right -> None,
               Direction.Up -> None,
               Direction.Down -> None
             ))
-            case _ => throw new IllegalArgumentException(s"Invalid character in puzzle: $blockSymbol")
+            case _ => throw new IllegalArgumentException(s"Invalid character in puzzle: $char")
           }
           grid(rowIdx)(colIdx) = block
         }
-        rowClues += rowProto.getRowClue.getClue
+        rowClues += rowLine.last.toInt
+        i += 1
       }
 
       puzzles = Puzzle((height, width), grid, rowClues.result(), columnClues) :: puzzles
@@ -94,46 +108,10 @@ object PuzzleReaderWriter {
     puzzles.reverse
   }
 
-  def writeSolution(filename: String, solutions: List[Solution]): Unit = {
-    val puzzleFileBuilder = PuzzleFile.newBuilder()
-
-    for (solution <- solutions) {
-      val puzzleBuilder = PuzzleBoard.newBuilder()
-
-      val dimensionsBuilder = Dimensions.newBuilder()
-      dimensionsBuilder.setWidth(solution.grid.head.length)
-      dimensionsBuilder.setHeight(solution.grid.length)
-      puzzleBuilder.setDimensions(dimensionsBuilder)
-
-      solution.columnClues.foreach { clue =>
-        val clueBuilder = Clue.newBuilder()
-        clueBuilder.setClue(clue)
-        puzzleBuilder.addColumnClues(clueBuilder)
-      }
-
-      val gridBuilder = Grid.newBuilder()
-      for (rowIdx <- solution.grid.indices) {
-        val rowBuilder = Row.newBuilder()
-        for (colIdx <- solution.grid(rowIdx).indices) {
-          val blockBuilder = Block.newBuilder()
-          blockBuilder.setBlock(solution.grid(rowIdx)(colIdx).toString)
-          rowBuilder.addBlocks(blockBuilder)
-        }
-
-        val rowClueBuilder = Clue.newBuilder()
-        rowClueBuilder.setClue(solution.rowClues(rowIdx))
-        rowBuilder.setRowClue(rowClueBuilder)
-        gridBuilder.addRows(rowBuilder)
-      }
-
-      puzzleBuilder.setGrid(gridBuilder)
-      puzzleFileBuilder.addPuzzles(puzzleBuilder)
-    }
-
-    val fileOutput = new FileOutputStream(filename)
-    puzzleFileBuilder.build().writeTo(fileOutput)
-    fileOutput.close()
-
-    println(s"Binary data has been saved to '$filename'")
+  def writeSolution(filename: String, solutions: List[Puzzle.Solution]): Unit = {
+    var outputfile: FileOutputStream = null;
+    var output = foo.PuzzleFile.newBuilder()
+    output.build().writeTo(filename)
+    outputfile.close()
   }
 }

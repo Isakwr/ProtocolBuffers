@@ -4,6 +4,9 @@ import sys
 infile = sys.argv[1]
 outfile= sys.argv[2]
 
+infile = "C:/Users/isakw/ikt212/isakwr/DataAssignment/binary2"
+outfile = "C:/Users/isakw/ikt212/isakwr/DataAssignment/test"
+
 
 def decode_puzzle(input_file, output_file):
     puzzle_file = schema_pb2.PuzzleFile()

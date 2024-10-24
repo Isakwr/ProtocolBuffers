@@ -1,4 +1,4 @@
-import PuzzleChecker.inBounds
+
 
 object PuzzleChecker {
 

@@ -1,8 +1,4 @@
-import scala.collection.mutable.Set
-import PuzzleChecker.{completeColumn, completeRow, connect, extendParts, fillCorner, finishConnect, loopChecker, makeFullyKnown, markNonTracksColumns, markNonTracksRows}
-
-import java.io.PrintWriter
-import scala.collection.mutable
+import PuzzleChecker._
 
 object Direction extends Enumeration {
   val Left, Up, Right, Down = Value

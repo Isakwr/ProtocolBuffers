@@ -1,11 +1,14 @@
 syntax = "proto3";
 
 
+package foo;
+
+option java_multiple_files = true;
+
 message Clue {
   uint32 clue = 1;
   // non-negative integer clues
 }
-
 message Block {
   string block = 1;
   // empty or UTF-8 box-drawing symbols
