@@ -111,7 +111,7 @@ object PuzzleReaderWriter {
   def writeSolution(filename: String, solutions: List[Puzzle.Solution]): Unit = {
     var outputfile: FileOutputStream = null;
     var output = jvPuzzleFile.newBuilder()
-    output.build().writeTo(filename)
+    output.build().writeTo(new FileOutputStream(filename))
     outputfile.close()
   }
 }
