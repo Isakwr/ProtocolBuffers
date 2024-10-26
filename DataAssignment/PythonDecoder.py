@@ -6,7 +6,7 @@ infile = sys.argv[1]
 outfile= sys.argv[2]
 
 block_type_to_symbol = {
-    schema_pb2.BlockType.EMPTY: '_',
+    schema_pb2.BlockType.EMPTY: ' ',
     schema_pb2.BlockType.LEFT_UP: '╝',
     schema_pb2.BlockType.LEFT_DOWN: '╗',
     schema_pb2.BlockType.RIGHT_DOWN: '╔',
