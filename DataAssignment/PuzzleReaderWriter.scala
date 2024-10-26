@@ -39,46 +39,37 @@ object PuzzleReaderWriter {
 
 
   def readPuzzles(filename: String): List[Puzzle] = {
-    val input = new FileInputStream(filename)
-    var puzzlefile = jvPuzzleFile.parseFrom(input)
+  val input = new FileInputStream(filename)
+  val puzzleFile = jvPuzzleFile.parseFrom(input)
+  val puzzleList = puzzleFile.getPuzzlesList
 
-    var puzzleList = puzzlefile.getPuzzlesList
-    var puzzleboard: jvPuzzle = null
-    var puzzleGrid: jvGrid = null
-    var puzzleRows: jvRow = null
-    var puzzleBlock: jvBlock = null
+  val puzzle1: ListBuffer[Puzzle] = ListBuffer()
 
-    //size (int, int)
-    //grid Array[Array[Block]]
-    //rowClues List[Int]
-    //colClues List[Int]
-    val puzzle1: ListBuffer[Puzzle] = ListBuffer()
+  for (i <- 0 until puzzleFile.getNumberOfPuzzles) {
+    val puzzleProto = puzzleList.get(i)
+    val javGrid = puzzleProto.getGrid
 
+    val height = javGrid.getRowsList.size()
+    val width = if (height > 0) javGrid.getRowsList.get(0).getBlocksCount else 0
+    val size: (Int, Int) = (height, width)
 
-    for(i <- 0 until puzzlefile.getNumberOfPuzzles){
+    val colClues: List[Int] = puzzleProto.getColumnCluesList.asScala.map(_.intValue()).toList
+    val rowClues: List[Int] = javGrid.getRowsList.asScala.map(_.getRowClue.intValue()).toList
 
-      var height: Int = puzzleList.get(i).getGrid.getRowsList.size()
-      var width: Int = puzzleList.get(i).getGrid.getRowsList.getFirst.getBlocksCount
-      var size: (Int, Int) = (height, width)
-      var temp = puzzleList.get(i).getColumnCluesList
-      var colClues: List[Int] = temp.asScala.map(_.intValue()).toList
-      var javGrid = puzzleList.get(i).getGrid
-      var rowClues: List[Int] = javGrid.getRowsList.asScala.map(_.getRowClue.intValue()).toList
-      var grid: Array[Array[Block]] = javGrid.getRowsList.asScala.map { row =>
-        row.getBlocksList.asScala.map { block =>
-          mapBlockTypeToBlock(block.getBlockType)
-        }.toArray
+    val grid: Array[Array[Block]] = javGrid.getRowsList.asScala.map { row =>
+      row.getBlocksList.asScala.map { block =>
+        mapBlockTypeToBlock(block.getBlockType)
       }.toArray
+    }.toArray
 
-      var puzzle: Puzzle = new Puzzle(size, grid, rowClues, colClues)
-      puzzle1 += puzzle
-
-    }
-
-    val returningPuzzleList: List[Puzzle] = puzzle1.toList
-    return returningPuzzleList
-
+    val puzzle = Puzzle(size, grid, rowClues, colClues)
+    puzzle1 += puzzle
   }
+
+  input.close()
+  puzzle1.toList
+}
+
 
 
   def ToProtoPuzzle(solution: Puzzle.Solution): Schema.Puzzle = {
@@ -113,17 +104,16 @@ object PuzzleReaderWriter {
   }
 
   def ToProtoPuzzleFile(solutions: List[Puzzle.Solution]): Schema.PuzzleFile = {
-    val protoPuzzles = new util.ArrayList[Schema.Puzzle]()
-    solutions.foreach { solution =>
-      protoPuzzles.add(ToProtoPuzzle(solution))
-    }
-
-    Schema.PuzzleFile.newBuilder()
-      .setNumberOfPuzzles(solutions.size)
-      .addAllPuzzles(protoPuzzles)
-      .build()
+  val protoPuzzles = new util.ArrayList[Schema.Puzzle]()
+  solutions.foreach { solution =>
+    protoPuzzles.add(ToProtoPuzzle(solution))
   }
 
+  Schema.PuzzleFile.newBuilder()
+    .setNumberOfPuzzles(solutions.size)
+    .addAllPuzzles(protoPuzzles)
+    .build()
+}
 
   def writeSolution(filename: String, solutions: List[Puzzle.Solution]): Unit = {
 
