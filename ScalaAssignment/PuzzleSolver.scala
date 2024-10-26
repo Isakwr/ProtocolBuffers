@@ -1,5 +1,5 @@
 @main def PuzzleSolver(inFile: String, outFile: String): Unit = {
-  
+
     // read all puzzles from the input file
     val puzzles = PuzzleReaderWriter.readPuzzles(inFile)
 

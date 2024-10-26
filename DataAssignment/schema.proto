@@ -1,36 +1,34 @@
 syntax = "proto3";
 
-message Clue {
-  uint32 clue = 1;
-  // non-negative integer clues
+enum BlockType {
+  EMPTY = 0;
+  LEFT_UP = 1;  // ╝
+  LEFT_DOWN = 2; // ╗
+  RIGHT_DOWN = 3; // ╔
+  RIGHT_UP = 4; // ╚
+  LEFT_RIGHT = 5; // ═
+  UP_DOWN = 6; // ║
 }
+
 message Block {
-  string block = 1;
-  // empty or UTF-8 box-drawing symbols
+  BlockType block_type = 1;  // Use enum instead of string for compact representation
 }
 
 message Row {
-  repeated Block blocks = 1; //each row contains multiple blocks
-  Clue row_clue = 2;         //clue at the end of the row
+  repeated Block blocks = 1;  // Each row contains multiple blocks
+  uint32 row_clue = 2;        // Clue at the end of the row
 }
 
 message Grid {
-  repeated Row rows = 1; //the puzzle grid consists of repeated Rows
+  repeated Row rows = 1;  // The puzzle grid consists of repeated Rows
 }
 
-message Dimensions {
-  uint32 width = 1;
-  uint32 height = 2;
-  // dimensions of the puzzle grid
-}
-
-message PuzzleBoard {
-  Dimensions dimensions = 1;       //dimensions of the puzzle
-  repeated Clue column_clues = 2;  //clues for each column (top)
-  Grid grid = 3;                   //the actual Puzzle grid
+message Puzzle {
+  repeated uint32 column_clues = 1 [packed=true];  // Packed encoding for repeated uint32 clues
+  Grid grid = 2;                                  // The actual Puzzle grid
 }
 
 message PuzzleFile {
-  uint32 number_of_puzzles = 1;    //number of puzzles in the file
-  repeated PuzzleBoard puzzles = 2;     //list of puzzles
+  uint32 number_of_puzzles = 1;    // Use uint32 (variable-length encoded)
+  repeated Puzzle puzzles = 2;
 }

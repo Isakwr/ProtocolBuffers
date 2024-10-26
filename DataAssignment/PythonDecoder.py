@@ -1,31 +1,51 @@
 import schema_pb2
+import os
 import sys
 
 infile = sys.argv[1]
 outfile= sys.argv[2]
 
-#infile = "C:/Users/isakw/ikt212/isakwr/DataAssignment/binary2"
-#outfile = "C:/Users/isakw/ikt212/isakwr/DataAssignment/test"
+block_type_to_symbol = {
+    schema_pb2.BlockType.EMPTY: '_',
+    schema_pb2.BlockType.LEFT_UP: '╝',
+    schema_pb2.BlockType.LEFT_DOWN: '╗',
+    schema_pb2.BlockType.RIGHT_DOWN: '╔',
+    schema_pb2.BlockType.RIGHT_UP: '╚',
+    schema_pb2.BlockType.LEFT_RIGHT: '═',
+    schema_pb2.BlockType.UP_DOWN: '║'
+}
 
-
-def decode_puzzle(input_file, output_file):
-    puzzle_file = schema_pb2.PuzzleFile()
+def decode_puzzle_file(input_file):
+    if not os.path.exists(input_file):
+        return None
 
     with open(input_file, 'rb') as f:
-        puzzle_file.ParseFromString(f.read())
+        binary_data = f.read()
 
-    with open(output_file, 'w', encoding='utf-8') as f:
-        f.write(f"puzzles {puzzle_file.number_of_puzzles}\n")
+    puzzle_file = schema_pb2.PuzzleFile()
+    puzzle_file.ParseFromString(binary_data)
+    return puzzle_file
 
-        for puzzle_idx, puzzle in enumerate(puzzle_file.puzzles):
-            f.write(f"size {puzzle.dimensions.width}x{puzzle.dimensions.height}\n")
-            column_clues = " ".join(str(clue.clue) for clue in puzzle.column_clues)
-            f.write(f"{column_clues}\n")
+def write_decoded_to_text(decoded_puzzle_file, output_txt_file):
+
+    with open(output_txt_file, 'w', encoding='utf-8') as f:
+        f.write(f"puzzles {decoded_puzzle_file.number_of_puzzles}\n")
+        for puzzle in decoded_puzzle_file.puzzles:
+            num_rows = len(puzzle.grid.rows)
+            num_columns = len(puzzle.column_clues)
+
+            f.write(f"size {num_rows}x{num_columns}\n")
+            f.write(" ".join(map(str, puzzle.column_clues)) + "\n")
+
 
             for row in puzzle.grid.rows:
-                row_blocks = " ".join(block.block for block in row.blocks)
-                f.write(f"{row_blocks} {row.row_clue.clue}\n")
+                row_symbols = [block_type_to_symbol[block.block_type] for block in row.blocks]
+                f.write(" ".join(row_symbols) + f" {row.row_clue}\n")
 
-    print(f"Decoded puzzle data has been saved to '{output_file}'")
 
-decode_puzzle(infile, outfile)
+
+
+if __name__ == "__main__":
+    decoded_puzzle_file = decode_puzzle_file(infile)
+    if decoded_puzzle_file:
+        write_decoded_to_text(decoded_puzzle_file, outfile)

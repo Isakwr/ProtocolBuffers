@@ -1,117 +1,161 @@
-import Schema.{Block as jvBlock, Clue as jvClue, PuzzleFile as jvPuzzleFile, PuzzleBoard as jvPuzzleBoard}
-import java.io.{FileInputStream, FileOutputStream}
-import scala.io.Source
 import Puzzle.Solution
+import Schema.{Block as jvBlock, Grid as jvGrid, Puzzle as jvPuzzle, PuzzleFile as jvPuzzleFile, Row as jvRow}
+
+import java.io.{FileInputStream, FileOutputStream, PrintWriter}
+import java.util
+import scala.collection.mutable.ListBuffer
+import scala.io.Source
+import scala.jdk.CollectionConverters.*
+
+
+def mapBlockTypeToBlock(blockType: Schema.BlockType): Block = {
+  val state = blockType match {
+    case Schema.BlockType.EMPTY      => None
+    case Schema.BlockType.LEFT_UP    => Some(1)
+    case Schema.BlockType.LEFT_DOWN  => Some(1)
+    case Schema.BlockType.RIGHT_DOWN => Some(1)
+    case Schema.BlockType.RIGHT_UP   => Some(1)
+    case Schema.BlockType.LEFT_RIGHT => Some(1)
+    case Schema.BlockType.UP_DOWN    => Some(1)
+    case _                           => None
+  }
+  
+  val paths: Map[Direction.Value, Option[Int]] = blockType match {
+    case Schema.BlockType.EMPTY      => Map(Direction.Left -> None, Direction.Up -> None, Direction.Right -> None, Direction.Down -> None)
+    case Schema.BlockType.LEFT_UP    => Map(Direction.Left -> Some(1), Direction.Up -> Some(1), Direction.Right -> Some(0), Direction.Down -> Some(0))
+    case Schema.BlockType.LEFT_DOWN  => Map(Direction.Left -> Some(1), Direction.Up -> Some(0), Direction.Right -> Some(0), Direction.Down -> Some(1))
+    case Schema.BlockType.RIGHT_DOWN => Map(Direction.Left -> Some(0), Direction.Up -> Some(0),Direction.Right -> Some(1), Direction.Down -> Some(1))
+    case Schema.BlockType.RIGHT_UP   => Map(Direction.Left -> Some(0), Direction.Up -> Some(1), Direction.Right -> Some(1), Direction.Down -> Some(0))
+    case Schema.BlockType.LEFT_RIGHT => Map(Direction.Left -> Some(1), Direction.Up -> Some(0), Direction.Right -> Some(1), Direction.Down -> Some(0))
+    case Schema.BlockType.UP_DOWN    => Map(Direction.Left -> Some(0), Direction.Up -> Some(1), Direction.Right -> Some(0), Direction.Down -> Some(1))
+    case _                           => Map.empty
+  }
+
+  Block(state, paths)
+}
+
 
 object PuzzleReaderWriter {
 
 
   def readPuzzles(filename: String): List[Puzzle] = {
-    val source = Source.fromFile("test.txt")
-    val lines = source.getLines().toList
-    source.close()
+    val input = new FileInputStream(filename)
+    var puzzlefile = jvPuzzleFile.parseFrom(input)
 
-    var puzzles = List.empty[Puzzle]
-    var i = 0
+    var puzzleList = puzzlefile.getPuzzlesList
+    var puzzleboard: jvPuzzle = null
+    var puzzleGrid: jvGrid = null
+    var puzzleRows: jvRow = null
+    var puzzleBlock: jvBlock = null
 
-    // first line indicates the number of puzzles
-    val numPuzzles = lines(i).split(" ")(1).toInt
-    println(s"Number of puzzles: $numPuzzles")
-    i += 1
+    //size (int, int)
+    //grid Array[Array[Block]]
+    //rowClues List[Int]
+    //colClues List[Int]
+    val puzzle1: ListBuffer[Puzzle] = ListBuffer()
 
-    // parse each puzzle
-    while (i < lines.length) {
-      // read the size of the puzzle (e.g., "size 4x4")
-      val sizeLine = lines(i).split(" ")(1).split("x")
-      val (width, height) = (sizeLine(0).toInt, sizeLine(1).toInt)
-      println(s"Puzzle size: ${width}x${height}")
-      i += 1
 
-      // read column clues
-      val columnClues = lines(i).trim.split(" ").map(_.toInt).toList
-      i += 1
+    for(i <- 0 until puzzlefile.getNumberOfPuzzles){
 
-      // read the grid rows and row clues
-      val grid = Array.fill(height, width)(Block())
-      val rowClues = List.newBuilder[Int]
+      var height: Int = puzzleList.get(i).getGrid.getRowsList.size()
+      var width: Int = puzzleList.get(i).getGrid.getRowsList.getFirst.getBlocksCount
+      var size: (Int, Int) = (height, width)
+      var temp = puzzleList.get(i).getColumnCluesList
+      var colClues: List[Int] = temp.asScala.map(_.intValue()).toList
+      var javGrid = puzzleList.get(i).getGrid
+      var rowClues: List[Int] = javGrid.getRowsList.asScala.map(_.getRowClue.intValue()).toList
+      var grid: Array[Array[Block]] = javGrid.getRowsList.asScala.map { row =>
+        row.getBlocksList.asScala.map { block =>
+          mapBlockTypeToBlock(block.getBlockType)
+        }.toArray
+      }.toArray
 
-      for (rowIdx <- 0 until height) {
-        val rowLine = lines(i).trim.split(" ")
-        for (colIdx <- 0 until width) {
-          val char = rowLine(colIdx).charAt(0)
-          val block = char match {
-            case '═' => Block(state = Some(1), paths = Map(
-              Direction.Left -> Some(1),
-              Direction.Right -> Some(1),
-              Direction.Up -> Some(0),
-              Direction.Down -> Some(0)
-            ))
-            case '║' => Block(state = Some(1), paths = Map(
-              Direction.Left -> Some(0),
-              Direction.Right -> Some(0),
-              Direction.Up -> Some(1),
-              Direction.Down -> Some(1)
-            ))
-            case '╔' => Block(state = Some(1), paths = Map(
-              Direction.Left -> Some(0),
-              Direction.Right -> Some(1),
-              Direction.Up -> Some(0),
-              Direction.Down -> Some(1)
-            ))
-            case '╗' => Block(state = Some(1), paths = Map(
-              Direction.Left -> Some(1),
-              Direction.Right -> Some(0),
-              Direction.Up -> Some(0),
-              Direction.Down -> Some(1)
-            ))
-            case '╚' => Block(state = Some(1), paths = Map(
-              Direction.Left -> Some(0),
-              Direction.Right -> Some(1),
-              Direction.Up -> Some(1),
-              Direction.Down -> Some(0)
-            ))
-            case '╝' => Block(state = Some(1), paths = Map(
-              Direction.Left -> Some(1),
-              Direction.Right -> Some(0),
-              Direction.Up -> Some(1),
-              Direction.Down -> Some(0)
-            ))
-            case '1' => Block(state = Some(1), paths = Map(
-              Direction.Left -> None,
-              Direction.Right -> None,
-              Direction.Up -> None,
-              Direction.Down -> None
-            ))
-            case '0' => Block(state = Some(0), paths = Map(
-              Direction.Left -> None,
-              Direction.Right -> None,
-              Direction.Up -> None,
-              Direction.Down -> None
-            ))
-            case '_' => Block(state = None, paths = Map(
-              Direction.Left -> None,
-              Direction.Right -> None,
-              Direction.Up -> None,
-              Direction.Down -> None
-            ))
-            case _ => throw new IllegalArgumentException(s"Invalid character in puzzle: $char")
-          }
-          grid(rowIdx)(colIdx) = block
-        }
-        rowClues += rowLine.last.toInt
-        i += 1
-      }
+      var puzzle: Puzzle = new Puzzle(size, grid, rowClues, colClues)
+      puzzle1 += puzzle
 
-      puzzles = Puzzle((height, width), grid, rowClues.result(), columnClues) :: puzzles
     }
 
-    puzzles.reverse
+    val returningPuzzleList: List[Puzzle] = puzzle1.toList
+    return returningPuzzleList
+
   }
 
-  def writeSolution(filename: String, solutions: List[Puzzle.Solution]): Unit = {
-    var outputfile: FileOutputStream = null;
-    var output = jvPuzzleFile.newBuilder()
-    output.build().writeTo(new FileOutputStream(filename))
-    outputfile.close()
+
+  def ToProtoPuzzle(solution: Puzzle.Solution): Schema.Puzzle = {
+    val protoGridBuilder = Schema.Grid.newBuilder()
+    
+    solution.grid.zip(solution.rowClues).foreach { case (rowChars, rowClue) =>
+      val protoRowBuilder = Schema.Row.newBuilder().setRowClue(rowClue)
+
+      rowChars.foreach { char =>
+        val blockType = char match {
+          case ' ' => Schema.BlockType.EMPTY
+          case '╝' => Schema.BlockType.LEFT_UP
+          case '╗' => Schema.BlockType.LEFT_DOWN
+          case '╔' => Schema.BlockType.RIGHT_DOWN
+          case '╚' => Schema.BlockType.RIGHT_UP
+          case '═' => Schema.BlockType.LEFT_RIGHT
+          case '║' => Schema.BlockType.UP_DOWN
+          case _   => Schema.BlockType.EMPTY 
+        }
+        protoRowBuilder.addBlocks(Schema.Block.newBuilder().setBlockType(blockType).build())
+      }
+
+      protoGridBuilder.addRows(protoRowBuilder.build())
+    }
+    val columnCluesJava = new util.ArrayList[Integer]()
+    solution.columnClues.foreach(clue => columnCluesJava.add(Int.box(clue)))
+
+    Schema.Puzzle.newBuilder()
+      .setGrid(protoGridBuilder.build())
+      .addAllColumnClues(columnCluesJava)
+      .build()
   }
+
+  def ToProtoPuzzleFile(solutions: List[Puzzle.Solution]): Schema.PuzzleFile = {
+    val protoPuzzles = new util.ArrayList[Schema.Puzzle]()
+    solutions.foreach { solution =>
+      protoPuzzles.add(ToProtoPuzzle(solution))
+    }
+
+    Schema.PuzzleFile.newBuilder()
+      .setNumberOfPuzzles(solutions.size)
+      .addAllPuzzles(protoPuzzles)
+      .build()
+  }
+
+
+  def writeSolution(filename: String, solutions: List[Puzzle.Solution]): Unit = {
+
+    val protoPuzzleFile = ToProtoPuzzleFile(solutions)
+    val outputStream = new FileOutputStream(filename)
+
+    try {
+      protoPuzzleFile.writeTo(outputStream)
+    } finally {
+      outputStream.close()
+    }
+  }
+  
+
+  /*
+  def writeSolution(filename: String, solutions: List[Solution]): Unit = {
+    val writer = new PrintWriter(filename)
+    writer.println(s"puzzles ${solutions.length}")
+
+
+    solutions.zipWithIndex.foreach { case (solution, index) =>
+      writer.println(s"size ${solution.grid.length}x${solution.grid.head.length}")
+      writer.print(solution.toString)
+      if (index < solutions.length - 1) {
+        writer.println()
+      }
+    }
+    writer.close()
+  }
+
+   */
+
+
+
 }
